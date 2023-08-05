@@ -1,17 +1,18 @@
-package pl.pomoku.survivalkotlinplugin.database.services.impl
+package pl.pomoku.survivalkotlin.database.services.impl
 
 import org.bukkit.plugin.java.JavaPlugin
 import org.ktorm.dsl.eq
 import org.ktorm.dsl.insert
 import org.ktorm.entity.firstOrNull
 import org.ktorm.entity.sequenceOf
+import pl.pomoku.survivalkotlin.database.entity.AccountEntity
+import pl.pomoku.survivalkotlin.database.entity.Accounts
+import pl.pomoku.survivalkotlin.database.services.AccountService
 import pl.pomoku.survivalkotlinplugin.database.DatabaseManager
-import pl.pomoku.survivalkotlinplugin.database.entity.AccountEntity
-import pl.pomoku.survivalkotlinplugin.database.entity.Accounts
-import pl.pomoku.survivalkotlinplugin.database.services.AccountService
 import java.lang.Exception
 
-class AccountServiceImpl(private val plugin: JavaPlugin, private val databaseManager: DatabaseManager) : AccountService {
+class AccountServiceImpl(private val plugin: JavaPlugin, private val databaseManager: DatabaseManager) :
+    AccountService {
     override fun findByPlayerUUID(playerUUID: String): AccountEntity? {
         return databaseManager.getDatabase().sequenceOf(Accounts).firstOrNull { it.playerUUID eq playerUUID }
     }
