@@ -1,37 +1,44 @@
-package pl.pomoku.survivalkotlinplugin.database
+package pl.pomoku.survivalkotlin.database
 
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.java.JavaPlugin
-import org.ktorm.database.Database
+import org.mariadb.jdbc.Connection
+import pl.pomoku.survivalkotlin.SurvivalKotlin
+import java.sql.DriverManager
+import java.sql.SQLException
 
-class DatabaseManager(private val plugin: JavaPlugin) {
-    private lateinit var database: Database
-    fun setupDatabase() {
-        val config: FileConfiguration = plugin.config
-        val group = "database"
-        println(config.getString("$group.host"))
+class DatabaseManager(private val plugin: SurvivalKotlin) {
+    private var connection: Connection? = null
 
-        val host = config.getString("$group.host") ?: "localhost"
-        val port = config.getInt("$group.port")
-        val databaseName = config.getString("$group..database_name") ?: "db"
-        val username = config.getString("$group.username") ?: "user"
-        val password = config.getString("$group.password") ?: "password"
+    fun connect() {
+        val config: FileConfiguration? = plugin.configFileManager.getConfiguration("database")
+
+        val host = config?.getString("database.host") ?: "localhost"
+        val port = config?.getInt("database.port")
+        val databaseName = config?.getString("database.database_name") ?: "db"
+        val username = config?.getString("database.username") ?: "user"
+        val password = config?.getString("database.password") ?: "password"
 
         try {
-            database = Database.connect(
-                url = "jdbc:mariadb://$host:$port/$databaseName",
-                driver = "org.mariadb.jdbc.Driver",
-                user = username,
-                password = password
-            )
+            Class.forName("org.mariadb.jdbc.Driver")
+            val url = "jdbc:mariadb://$host:$port/$databaseName"
+            connection = DriverManager.getConnection(url, username, password) as Connection?
             plugin.logger.info("Pomyślnie podłączono z bazą danych.")
-        }catch (ex: Exception){
+        } catch (ex: SQLException) {
             plugin.logger.severe("Błąd podczas łączenia z bazą danych: ${ex.message}")
-            plugin.server.pluginManager.disablePlugin(plugin);
+            ex.printStackTrace()
+        } catch (ex: ClassNotFoundException) {
+            plugin.logger.severe("Błąd podczas łączenia z bazą danych: ${ex.message}")
+            ex.printStackTrace()
         }
     }
 
-    fun getDatabase(): Database {
-        return database;
+    fun disconnect() {
+        connection?.close()
+        plugin.logger.info("Rozłączono bazę danych")
+    }
+
+    fun getConnection(): Connection? {
+        return connection
     }
 }

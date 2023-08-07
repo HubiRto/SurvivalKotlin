@@ -1,6 +1,5 @@
-database:
-  host: localhost
-  port: 3306
-  database_name: mc
-  username: admin
-  password: password
+prefix:
+  # Text wyświetlany jako prefix przy wszystkich wiadomościach w pluginie
+  text: "<dark_gray>[<gold>SK</gold>] "
+  # Czy prefix ma być wyświetlany ? true-tak, false-nie
+  mode: true
